@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const Wallet = require("../models/Wallet");
 const User = require("../models/User");
+const Transaction = require("../models/Transaction");
 
 const createWallet = asyncHandler(async (req, res) => {
   const walletAvailable = await Wallet.findOne({ user_id: req.user._id });
@@ -40,6 +41,13 @@ const addMoney = asyncHandler(async (req, res) => {
       new: true,
     }
   );
+  await Transaction.create({
+    user_id: req.user._id,
+    from: "Bank",
+    to: req.user.username,
+    type: "Credit",
+    amount,
+  });
   res.status(200).json({ message: "Account funded", data: updatedBalance });
 });
 const withdraw = asyncHandler(async (req, res) => {
@@ -54,7 +62,13 @@ const withdraw = asyncHandler(async (req, res) => {
     throw new Error("Insufficient Balance");
   }
   const balance = wallet.amount - parseInt(amount);
-
+  await Transaction.create({
+    user_id: req.user._id,
+    to: "Bank",
+    from: req.user.username,
+    type: "Debit",
+    amount,
+  });
   const updatedBalance = await Wallet.findOneAndUpdate(
     { user_id: req.user._id },
     { amount: balance },
@@ -90,7 +104,20 @@ const wallet2Wallet = asyncHandler(async (req, res) => {
   const balance = wallet.amount - parseInt(amount);
   const receiverWallet = await Wallet.findOne({ user_id: receiver._id });
   const receiverBalance = receiverWallet.amount + parseInt(amount);
-
+  await Transaction.create({
+    user_id: req.user._id,
+    to: receiver.username,
+    from: req.user.username,
+    type: "Credit",
+    amount,
+  });
+  await Transaction.create({
+    user_id: req.user._id,
+    to: req.user.username,
+    from: receiver.username,
+    type: "Debit",
+    amount,
+  });
   const updatedBalance = await Wallet.findOneAndUpdate(
     { user_id: req.user._id },
     { amount: balance },

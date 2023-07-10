@@ -108,14 +108,14 @@ const wallet2Wallet = asyncHandler(async (req, res) => {
     user_id: req.user._id,
     to: receiver.username,
     from: req.user.username,
-    type: "Credit",
+    type: "Debit",
     amount,
   });
   await Transaction.create({
     user_id: req.user._id,
     to: req.user.username,
     from: receiver.username,
-    type: "Debit",
+    type: "Credit",
     amount,
   });
   const updatedBalance = await Wallet.findOneAndUpdate(

@@ -15,6 +15,7 @@ const walletSchema = mongoose.Schema({
     enum: ["NGN", "USD", "GBP"],
     type: String,
     required: true,
+    default: "NGN",
   },
 });
 module.exports = mongoose.model("Wallet", walletSchema);

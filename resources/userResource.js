@@ -7,11 +7,10 @@ const userResource = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("User not found");
   }
-  const wallet = await Wallet.findOne({ user_id: req.user._id });
-  if (!wallet) {
-    res.status(404);
-    throw new Error("Wallet not found");
-  }
+  const wallet = await Wallet.findOne({ user_id: req.user.id });
+  // if (!wallet) {
+
+  // }
 
   res.status(200).json({
     message: "user successfully fetched",

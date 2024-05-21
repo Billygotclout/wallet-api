@@ -1,28 +1,37 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const fs = require("fs");
 const cloudinary = require("cloudinary").v2;
 const jwt = require("jsonwebtoken");
 const userResource = require("../resources/userResource");
 cloudinary.config({
   cloud_name: "dgmd8bmgm",
   api_key: `${process.env.CLOUDINARY_API_KEY}`,
-  api_secret: `${process.env.CLOUDINARY_API_SECRET}`,
+  api_secret: `${process.env.CLOUDINARY_SECRET_KEY}`,
 });
 
 const register = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
+
   if (!username || !password) {
     res.status(400);
     throw new Error("All fields are required");
   }
   const userAvailable = await User.findOne({ username });
+  console.log();
   if (userAvailable) {
     res.status(401);
     throw new Error("User already exists");
   }
   const hashedPassword = await bcrypt.hash(password, 10);
   const image = await cloudinary.uploader.upload(req.file.path);
+
+  // remove file from server
+  fs.unlink(`${req.file.path}`, (err) => {
+    if (err) console.log(err);
+  });
+
   if (!image) {
     res.status(400);
     throw new Error("Image could not be uploaded");

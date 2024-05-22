@@ -5,6 +5,8 @@ const fs = require("fs");
 const cloudinary = require("cloudinary").v2;
 const jwt = require("jsonwebtoken");
 const userResource = require("../resources/userResource");
+const { createWallet } = require("./walletController");
+const Wallet = require("../models/Wallet");
 cloudinary.config({
   cloud_name: "dgmd8bmgm",
   api_key: `${process.env.CLOUDINARY_API_KEY}`,
@@ -36,11 +38,16 @@ const register = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Image could not be uploaded");
   }
+
   const user = await User.create({
     username,
     password: hashedPassword,
     profile_pic: image.secure_url,
   });
+  const wallet = await Wallet.create({
+    user_id: user.id,
+  });
+
   res.status(201).json({
     message: "User successfully registered",
     data: user,

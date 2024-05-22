@@ -20,4 +20,9 @@ const userSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
+userSchema.set("toJSON", {
+  transform: function (doc, ret) {
+    delete ret.password;
+  },
+});
 module.exports = mongoose.model("User", userSchema);

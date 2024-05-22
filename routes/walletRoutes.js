@@ -5,12 +5,13 @@ const {
   addMoney,
   withdraw,
   wallet2Wallet,
+  createWallet,
 } = require("../controllers/walletController");
 
 const router = express.Router();
 
 router.use(validateToken);
-
+router.route("/create").post(createWallet);
 router.route("/balance").get(walletBalance);
 router.route("/fund").post(addMoney);
 router.route("/withdraw").post(withdraw);

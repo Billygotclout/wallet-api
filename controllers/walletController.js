@@ -3,6 +3,22 @@ const Wallet = require("../models/Wallet");
 const User = require("../models/User");
 const Transaction = require("../models/Transaction");
 
+const createWallet = asyncHandler(async (req, res) => {
+  const walletAvailable = await Wallet.findOne({
+    user_id: req.user._id,
+  });
+  if (walletAvailable) {
+    res.status(401);
+    throw new Error("User already has existing wallet");
+  }
+  const wallet = await Wallet.create({
+    user_id: req.user._id,
+  });
+  res.status(201).json({
+    message: "Wallet successfully created ",
+    data: wallet,
+  });
+});
 const walletBalance = asyncHandler(async (req, res) => {
   const wallet = await Wallet.findOne({ user_id: req.user._id });
   if (!wallet) {
@@ -137,6 +153,7 @@ const wallet2Wallet = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  createWallet,
   walletBalance,
   addMoney,
   withdraw,
